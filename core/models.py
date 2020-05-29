@@ -5,11 +5,15 @@ from django.db.models import Sum
 from django.shortcuts import reverse
 from django_countries.fields import CountryField
 
+from django.urls import reverse
+from django.shortcuts import render
+from paypal.standard.forms import PayPalPaymentsForm
+
 
 CATEGORY_CHOICES = (
-    ('S', 'Shirt'),
-    ('SW', 'Sport wear'),
-    ('OW', 'Outwear')
+    ('Bo', 'Bolsa'),
+    ('Ci', 'Cinto'),
+    ('Ca', 'Carteira')
 )
 
 LABEL_CHOICES = (
@@ -27,7 +31,6 @@ ADDRESS_CHOICES = (
 class UserProfile(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    stripe_customer_id = models.CharField(max_length=50, blank=True, null=True)
     one_click_purchasing = models.BooleanField(default=False)
 
     def __str__(self):
@@ -98,8 +101,6 @@ class Order(models.Model):
     ordered = models.BooleanField(default=False)
     shipping_address = models.ForeignKey(
         'Address', related_name='shipping_address', on_delete=models.SET_NULL, blank=True, null=True)
-    billing_address = models.ForeignKey(
-        'Address', related_name='billing_address', on_delete=models.SET_NULL, blank=True, null=True)
     payment = models.ForeignKey(
         'Payment', on_delete=models.SET_NULL, blank=True, null=True)
     coupon = models.ForeignKey(
@@ -123,13 +124,24 @@ class Order(models.Model):
     def __str__(self):
         return self.user.username
 
+    @property
     def get_total(self):
         total = 0
         for order_item in self.items.all():
             total += order_item.get_final_price()
         if self.coupon:
             total -= self.coupon.amount
+        total = str(total)
         return total
+    
+    @property
+    def get_cart_items(self):
+        orderitems = self.OrderItem.objects.all()
+        '''
+        for order_item in self.items.all():
+            total += order_item.quantity()
+        '''
+        return orderitems
 
 
 class Address(models.Model):
@@ -150,7 +162,6 @@ class Address(models.Model):
 
 
 class Payment(models.Model):
-    stripe_charge_id = models.CharField(max_length=50)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.SET_NULL, blank=True, null=True)
     amount = models.FloatField()
@@ -184,3 +195,4 @@ def userprofile_receiver(sender, instance, created, *args, **kwargs):
 
 
 post_save.connect(userprofile_receiver, sender=settings.AUTH_USER_MODEL)
+

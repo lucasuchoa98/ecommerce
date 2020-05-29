@@ -241,6 +241,7 @@ class PaymentView(View):
             token = form.cleaned_data.get('stripeToken')
             save = form.cleaned_data.get('save')
             use_default = form.cleaned_data.get('use_default')
+            print('ESTOU PASSANDO POR AQUIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIAEHUAEHIUEA')
 
             if save:
                 if userprofile.stripe_customer_id != '' and userprofile.stripe_customer_id is not None:

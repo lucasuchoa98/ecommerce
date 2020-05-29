@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'crispy_forms',
     'django_countries',
+    'paypal.standard.ipn',
 
     'core'
 ]
@@ -54,7 +55,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'djecommerce.wsgi.application'
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
@@ -80,3 +81,5 @@ LOGIN_REDIRECT_URL = '/'
 # CRISPY FORMS
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+PAYPAL_TEST = True
+PAYPAL_RECEIVER_EMAIL = 'uchoa.lucas18@gmail.com'
